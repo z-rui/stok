@@ -13,9 +13,15 @@ size_t stok(const char *s, int *tok)
 			;
 		*tok = TOK_WHITESPACE;
 	} else if (isdigit(*t)) {
-		/* TODO hex number and floating point */
-		while (isdigit(*++t))
-			;
+		/* TODO floating point */
+		if (*t == '0' && (t[1] == 'x' || t[1] == 'X')) {
+			++t;	/* skip 'x' */
+			while (isxdigit(*++t))
+				;
+		} else {
+			while (isdigit(*++t))
+				;
+		}
 		*tok = TOK_NUMBER;
 	} else if (*t == '\'' || *t == '"') {
 		char delimiter = *t;
