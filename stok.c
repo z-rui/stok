@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <string.h>
 #include "stok.h"
 
 size_t stok(const char *s, int *tok)
@@ -11,9 +12,9 @@ size_t stok(const char *s, int *tok)
 		/* TODO comment */
 		while (isspace(*++t))
 			;
-		*tok = TOK_WHITESPACE;
+		*tok = TOK_SPACE;
 	} else if (isdigit(*t)) {
-		/* TODO floating point */
+		*tok = TOK_INT;
 		if (*t == '0' && (t[1] == 'x' || t[1] == 'X')) {
 			++t;	/* skip 'x' */
 			while (isxdigit(*++t))
@@ -21,8 +22,25 @@ size_t stok(const char *s, int *tok)
 		} else {
 			while (isdigit(*++t))
 				;
+tok_float:
+			if (*t == '.') {
+				*tok = TOK_FLOAT;
+				while (isdigit(*++t))
+					;
+			}
+			if (*t == 'e' || *t == 'E') {
+				if (t[1] == '+' || t[1] == '-')
+					++t;
+				if (!isdigit(*++t)) {
+					*tok = TOK_ERROR;
+					return 0;
+				}
+				while (isdigit(*++t))
+					;
+			}
 		}
-		*tok = TOK_NUMBER;
+	} else if (*t == '.' && isdigit(t[1])) {
+		goto tok_float;
 	} else if (*t == '\'' || *t == '"') {
 		char delimiter = *t;
 
@@ -39,7 +57,7 @@ size_t stok(const char *s, int *tok)
 	} else if (*t == '_' || isalpha(*t)) {
 		while (*++t == '_' || isalnum(*t))
 			;
-		*tok = TOK_IDENT;
+		*tok = TOK_NAME;
 	} else if (ispunct(*t)) {
 		/* TODO multi-character symbol */
 		++t;
