@@ -1,5 +1,4 @@
 #include <ctype.h>
-#include <string.h>
 #include "stok.h"
 
 size_t stok(const char *s, int *tok)
