@@ -7,5 +7,4 @@
 #define TOK_SYMBOL 5
 #define TOK_LITERAL 6
 
-#include <stddef.h>	/* size_t */
-extern size_t stok(const char *, int *);
+extern int stok(const char *, char **);

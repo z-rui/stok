@@ -5,17 +5,19 @@ int main()
 {
 	static char buffer[65536];
 	int tok;
-	size_t len;
-	const char *s;
+	const char *s, *t;
 
 	fread(buffer, 1, sizeof buffer, stdin);
 
 	s = buffer;
 	do {
-		len = stok(s, &tok);
-		printf("%d\t%.*s\n", tok, (int) len, s);
-		s += len;
-	} while (len > 0);
+		tok = stok(s, (char **) &t);
+		printf("%d\t%.*s\n", tok, (int) (t-s), s);
+		if (tok == TOK_ERROR) {
+			printf("illegal token: %.*s\n", (int) (t-s), s);
+		}
+		s = t;
+	} while (tok > 0);
 
 	return 0;
 }

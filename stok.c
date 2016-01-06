@@ -1,19 +1,20 @@
 #include <ctype.h>
 #include "stok.h"
 
-size_t stok(const char *s, int *tok)
+int stok(const char *s, char **endptr)
 {
+	int rc;
 	const char *t = s;
 
 	if (*t == '\0') {
-		*tok = TOK_EOF;
+		rc = TOK_EOF;
 	} else if (isspace(*t)) {
 		/* TODO comment */
 		while (isspace(*++t))
 			;
-		*tok = TOK_SPACE;
+		rc = TOK_SPACE;
 	} else if (isdigit(*t)) {
-		*tok = TOK_INT;
+		rc = TOK_INT;
 		if (*t == '0' && (t[1] == 'x' || t[1] == 'X')) {
 			++t;	/* skip 'x' */
 			while (isxdigit(*++t))
@@ -23,7 +24,7 @@ size_t stok(const char *s, int *tok)
 				;
 tok_float:
 			if (*t == '.') {
-				*tok = TOK_FLOAT;
+				rc = TOK_FLOAT;
 				while (isdigit(*++t))
 					;
 			}
@@ -31,11 +32,11 @@ tok_float:
 				if (t[1] == '+' || t[1] == '-')
 					++t;
 				if (!isdigit(*++t)) {
-					*tok = TOK_ERROR;
-					return 0;
+					rc = TOK_ERROR;
+				} else {
+					while (isdigit(*++t))
+						;
 				}
-				while (isdigit(*++t))
-					;
 			}
 		}
 	} else if (*t == '.' && isdigit(t[1])) {
@@ -43,26 +44,30 @@ tok_float:
 	} else if (*t == '\'' || *t == '"') {
 		char delimiter = *t;
 
-		*tok = TOK_LITERAL;
+		rc = TOK_LITERAL;
 		while (*++t != delimiter) {
 			if (*t == '\\')
 				++t;
 			if (*t == '\0') {
-				*tok = TOK_ERROR;
-				return 0;
+				rc = TOK_ERROR;
+				--t; /* to cancel ++t after the loop */
+				break;
 			}
 		}
 		++t;
 	} else if (*t == '_' || isalpha(*t)) {
 		while (*++t == '_' || isalnum(*t))
 			;
-		*tok = TOK_NAME;
+		rc = TOK_NAME;
 	} else if (ispunct(*t)) {
 		/* TODO multi-character symbol */
 		++t;
-		*tok = TOK_SYMBOL;
+		rc = TOK_SYMBOL;
 	} else {
-		*tok = TOK_ERROR;
+		rc = TOK_ERROR;
 	}
-	return (size_t) (t - s);
+	if (endptr) {
+		*endptr = (char *) t;
+	}
+	return rc;
 }
