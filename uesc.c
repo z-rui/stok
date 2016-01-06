@@ -14,9 +14,9 @@ size_t uesc(char *out, const char *in)
 			int n = 0;
 
 			++in;
-			if (isdigit(in[n])) ++n;
-			if (isdigit(in[n])) ++n;
-			if (isdigit(in[n])) ++n;
+			if ('0' <= in[n] && in[n] <= '7') ++n;
+			if ('0' <= in[n] && in[n] <= '7') ++n;
+			if ('0' <= in[n] && in[n] <= '7') ++n;
 
 			if (n > 0) { /* \ooo */
 				char buf[4];
